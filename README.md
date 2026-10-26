@@ -1,5 +1,9 @@
 # Balloon Shooter 3D — Sky Carnival
 
+[![CI](https://github.com/Harishik/Balloon-Shooter/actions/workflows/ci.yml/badge.svg)](https://github.com/Harishik/Balloon-Shooter/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+![Engine](https://img.shields.io/badge/engine-Panda3D-orange)
+
 A 3D carnival shooting gallery built in **Python** with the **Panda3D** engine. Step up to the booth on a
 cliff above a sunny valley, grab your toy blaster and pop every balloon floating up into the sky.
 Easy for kids to pick up, with plenty of depth (combos, specials and medals) for score chasers.
