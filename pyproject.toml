@@ -1,0 +1,22 @@
+[project]
+name = "balloon-shooter-3d"
+version = "2.0.0"
+description = "A 3D carnival balloon shooting gallery made with Python and Panda3D."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["panda3d>=1.10.14,<1.11", "numpy>=1.24"]
+
+[project.scripts]
+balloon-shooter = "balloon_shooter.app:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["legacy"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E731"]
