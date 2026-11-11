@@ -8,7 +8,10 @@ A 3D carnival shooting gallery built in **Python** with the **Panda3D** engine. 
 cliff above a sunny valley, grab your toy blaster and pop every balloon floating up into the sky.
 Easy for kids to pick up, with plenty of depth (combos, specials and medals) for score chasers.
 
-![Gameplay](docs/screenshots/gameplay-2.jpg)
+![Gameplay trailer](docs/media/trailer.gif)
+
+<sub>Recorded straight from the game (Time Attack, Survival at sunset, Zen at dusk).
+[Watch the full-quality video (MP4)](docs/media/trailer.mp4)</sub>
 
 ## Features
 
@@ -28,6 +31,7 @@ Easy for kids to pick up, with plenty of depth (combos, specials and medals) for
 
 | | |
 |---|---|
+| ![Gameplay](docs/screenshots/gameplay-2.jpg) | ![Combo](docs/screenshots/gameplay.jpg) |
 | ![Title](docs/screenshots/title.jpg) | ![Modes](docs/screenshots/modes.jpg) |
 | ![Survival at sunset](docs/screenshots/survival.jpg) | ![Zen at dusk](docs/screenshots/zen.jpg) |
 | ![How to play](docs/screenshots/how-to-play.jpg) | ![Results](docs/screenshots/results.jpg) |
@@ -111,6 +115,7 @@ balloon_shooter/
   audio.py / storage.py    sound and save data
 assets/                    font (Fredoka) and generated sounds
 tools/generate_audio.py    rebuilds every sound effect and music loop
+tools/make_trailer.py      records the README trailer from the game itself
 tests/                     unit tests and a headless smoke test
 legacy/                    the original 2D pygame version
 ```
@@ -127,10 +132,14 @@ BALLOON_SHOOTER_SMOKE=1 xvfb-run -a pytest tests/test_smoke.py
 
 # regenerate the sounds and music
 python tools/generate_audio.py
+
+# re-record the trailer at the top of this page (needs ffmpeg)
+xvfb-run -a -s "-screen 0 1280x720x24" python tools/make_trailer.py
 ```
 
 `--autoplay`, `--screenshot T:PATH` and `--quit-after N` let the built-in bot play and capture screenshots,
-which is how the images above were made.
+which is how the images above were made. `--record DIR` saves every frame at a fixed frame rate, so videos
+come out smooth even on a slow machine.
 
 ## The original
 
