@@ -57,10 +57,14 @@ def parse_args(argv=None):
     p.add_argument("--no-msaa", action="store_true", help="disable anti-aliasing")
     p.add_argument("--seed", type=int, default=None)
     # automation hooks used for screenshots and smoke tests
-    p.add_argument("--autoplay", action="store_true", help="let a bot play (demo / testing)")
+    p.add_argument("--autoplay", nargs="?", const="quick", choices=["quick", "relaxed"], default=None,
+                   help="let a bot play (demo / testing); 'relaxed' lets the sky fill up first")
     p.add_argument("--screenshot", action="append", default=[], metavar="T:PATH",
                    help="save a screenshot at T seconds, e.g. 12:shots/play.png (repeatable)")
     p.add_argument("--quit-after", type=float, default=0.0, help="exit after N seconds")
+    p.add_argument("--record", metavar="DIR", default=None,
+                   help="save every frame to DIR as PNG, at a fixed frame rate (for trailers)")
+    p.add_argument("--record-fps", type=int, default=30, help="frame rate used with --record")
     p.add_argument("--data-dir", default=None, help="where settings and scores are saved")
     p.add_argument("--script", default="", help=argparse.SUPPRESS)
     args = p.parse_args(argv)

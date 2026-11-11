@@ -21,6 +21,7 @@ from .world import World
 AIM_KEYS = {"arrow_left": (-1, 0), "arrow_right": (1, 0), "arrow_up": (0, 1), "arrow_down": (0, -1),
             "a": (-1, 0), "d": (1, 0), "w": (0, 1), "s": (0, -1)}
 AIM_SPEED = 1.3          # film units per second for keyboard aiming
+BOT_PAUSE = {"quick": (0.18, 0.4), "relaxed": (0.5, 0.9)}   # seconds between bot shots
 MENU_NAV = {"arrow_up": -1, "arrow_down": 1, "arrow_left": -1, "arrow_right": 1}
 
 
@@ -60,8 +61,17 @@ class Game(ShowBase):
         self.time = 0.0
         self.keys_down = set()
         self.hover_kind = None
+        self._bot_wait = 0.0
         self._shots = sorted(self._parse_shots(args.screenshot))
         self._script = self._parse_script(args.script)
+        self._record_dir = args.record
+        self._record_frame = 0
+        if self._record_dir:
+            # A fixed timestep keeps the recording smooth however slowly frames render.
+            os.makedirs(self._record_dir, exist_ok=True)
+            clock = ClockObject.getGlobalClock()
+            clock.setMode(ClockObject.MNonRealTime)
+            clock.setFrameRate(args.record_fps)
 
         self._bind_input()
         self.apply_settings()
@@ -315,13 +325,19 @@ class Game(ShowBase):
         return moved
 
     def _bot(self, dt):
-        """Demo/test bot: tracks the most valuable balloon it can see."""
+        """Demo/test bot: plays like a quick human. It lets balloons float into
+        the upper part of the screen, then tracks the most valuable one and
+        pauses briefly after each shot."""
+        self._bot_wait -= dt
+        if self._bot_wait > 0:
+            self.trigger = False
+            return
         best, best_score = None, -1e9
         for b in self.field.balloons:
             if b.key == "bomb" or not b.alive:
                 continue
             film = self._project(b.node.getPos(self.render))
-            if film is None or abs(film[0]) > 0.95 or film[1] < -0.6 or film[1] > 0.9:
+            if film is None or abs(film[0]) > 0.92 or film[1] < -0.05 or film[1] > 0.85:
                 continue
             value = b.kind.points + (40 if b.key in ("frost", "nova", "clock") else 0)
             d = math.hypot(film[0] - self.aim[0], film[1] - self.aim[1])
@@ -329,11 +345,13 @@ class Game(ShowBase):
             if score > best_score:
                 best, best_score = film, score
         if best:
-            k = min(1.0, dt * 9)
+            k = min(1.0, dt * 7)
             self.aim[0] += (best[0] - self.aim[0]) * k
             self.aim[1] += (best[1] - self.aim[1]) * k
             if math.hypot(best[0] - self.aim[0], best[1] - self.aim[1]) < 0.04 and self.state == "playing":
                 self.trigger = True
+                pause = BOT_PAUSE[self.args.autoplay]
+                self._bot_wait = random.uniform(*pause)
                 return
         self.trigger = False
 
@@ -573,6 +591,11 @@ class Game(ShowBase):
     # -- automation (screenshots / smoke tests) ------------------------------------
     def _run_automation(self):
         t = self.time
+        if self._record_dir and self._record_frame < int(t * self.args.record_fps):
+            # the window still holds the previous frame, which is the one to keep
+            path = os.path.join(self._record_dir, f"frame_{self._record_frame:05d}.png")
+            self.win.saveScreenshot(path)
+            self._record_frame += 1
         while self._script and self._script[0][0] <= t:
             _, action = self._script.pop(0)
             self._script_action(action)
