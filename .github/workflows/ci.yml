@@ -14,7 +14,17 @@ jobs:
         with:
           python-version: "3.12"
       - name: System packages for headless OpenGL
-        run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libglu1-mesa
+        # Runner images usually ship these already; only touch apt (and its mirrors) when one is missing.
+        run: |
+          missing=""
+          for pkg in xvfb libgl1-mesa-dri; do
+            dpkg -s "$pkg" >/dev/null 2>&1 || missing="$missing $pkg"
+          done
+          if [ -n "$missing" ]; then
+            sudo apt-get update && sudo apt-get install -y $missing
+          else
+            echo "xvfb and Mesa are already installed"
+          fi
       - name: Install
         run: pip install -r requirements-dev.txt
       - name: Lint
